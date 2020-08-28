@@ -67,7 +67,10 @@ class HabitCardView(
                 newHabit?.observable?.addListener(this)
             }
             val streaks = newHabit?.streaks?.all
+            isLastStreakBestStreak = false
             lastStreak = if (streaks != null && streaks.size > 0) {
+                if (newHabit.streaks.getBest(1)[0] == streaks[0])
+                    isLastStreakBestStreak = true
                 streaks[0].length
             } else 0
 
@@ -91,6 +94,8 @@ class HabitCardView(
 //                visibility = if (value == 0) View.GONE else View.VISIBLE
             }
         }
+
+    private var isLastStreakBestStreak = false
 
     var unit
         get() = numberPanel.units
@@ -146,6 +151,7 @@ class HabitCardView(
             val marginRight = dp(8f).toInt()
             setSingleLine()
             gravity = Gravity.CENTER
+            typeface = Typeface.DEFAULT_BOLD
             layoutParams = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
                 setMargins(0, 0, marginRight, 0)
                 gravity = Gravity.CENTER
@@ -251,8 +257,15 @@ class HabitCardView(
         scoreText.apply {
             setTextColor(c)
         }
-        streakText.apply{
-            setTextColor(c)
+        streakText.apply {
+            setTextColor(when (isLastStreakBestStreak) {
+                true -> c
+                false -> sres.getColor(R.attr.mediumContrastTextColor)
+            })
+            visibility = when (h.isNumerical) {
+                true -> View.GONE
+                false -> View.VISIBLE
+            }
         }
         checkmarkPanel.apply {
             color = c
