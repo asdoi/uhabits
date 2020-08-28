@@ -136,7 +136,7 @@ class HabitCardView(
             setSingleLine()
             gravity = Gravity.CENTER
             typeface = Typeface.DEFAULT_BOLD
-            layoutParams = LinearLayout.LayoutParams(0, WRAP_CONTENT, 0.3f).apply {
+            layoutParams = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
                 setMargins(margin, 0, margin, 0)
                 gravity = Gravity.CENTER
             }
