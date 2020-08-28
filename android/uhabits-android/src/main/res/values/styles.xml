@@ -52,6 +52,7 @@
         <item name="lowContrastTextColor">@color/grey_300</item>
 
         <item name="iconAdd">@drawable/ic_action_add_dark</item>
+        <item name="iconSort">@drawable/ic_action_sort</item>
         <item name="iconArchive">@drawable/ic_action_archive_dark</item>
         <item name="iconEdit">@drawable/ic_action_edit_dark</item>
         <item name="iconDownload">@drawable/ic_action_download_dark</item>
@@ -104,6 +105,7 @@
         <item name="lowContrastReverseTextColor">@color/grey_300</item>
 
         <item name="iconAdd">@drawable/ic_action_add_dark</item>
+        <item name="iconSort">@drawable/ic_action_sort</item>
         <item name="iconArchive">@drawable/ic_action_archive_dark</item>
         <item name="iconEdit">@drawable/ic_action_edit_dark</item>
         <item name="iconUnarchive">@drawable/ic_action_unarchive_dark</item>
