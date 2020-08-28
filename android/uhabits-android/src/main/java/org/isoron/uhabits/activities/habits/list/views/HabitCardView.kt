@@ -66,6 +66,11 @@ class HabitCardView(
                 field?.observable?.removeListener(this)
                 newHabit?.observable?.addListener(this)
             }
+            val streaks = newHabit?.streaks?.all
+            lastStreak = if (streaks != null && streaks.size > 0) {
+                streaks[0].length
+            } else 0
+
             field = newHabit
             if (newHabit != null) copyAttributesFrom(newHabit)
         }
@@ -76,6 +81,15 @@ class HabitCardView(
             scoreRing.percentage = value.toFloat()
             scoreRing.precision = 1.0f / 16
             scoreText.text = "${(value * 100).toInt()}%"
+        }
+
+    private var lastStreak
+        get() = streakText.text.toString().toInt()
+        set(value) {
+            streakText.apply {
+                text = value.toString()
+//                visibility = if (value == 0) View.GONE else View.VISIBLE
+            }
         }
 
     var unit
@@ -103,6 +117,7 @@ class HabitCardView(
     private var label: TextView
     private var scoreRing: RingView
     private var scoreText: TextView
+    private var streakText: TextView
 
     init {
         scoreRing = RingView(context).apply {
@@ -123,6 +138,16 @@ class HabitCardView(
             typeface = Typeface.DEFAULT_BOLD
             layoutParams = LinearLayout.LayoutParams(0, WRAP_CONTENT, 0.3f).apply {
                 setMargins(margin, 0, margin, 0)
+                gravity = Gravity.CENTER
+            }
+        }
+
+        streakText = TextView(context).apply {
+            val marginRight = dp(8f).toInt()
+            setSingleLine()
+            gravity = Gravity.CENTER
+            layoutParams = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
+                setMargins(0, 0, marginRight, 0)
                 gravity = Gravity.CENTER
             }
         }
@@ -157,6 +182,7 @@ class HabitCardView(
 
             addView(scoreRing)
             addView(scoreText)
+            addView(streakText)
             addView(label)
             addView(checkmarkPanel)
             addView(numberPanel)
@@ -223,6 +249,9 @@ class HabitCardView(
             color = c
         }
         scoreText.apply {
+            setTextColor(c)
+        }
+        streakText.apply{
             setTextColor(c)
         }
         checkmarkPanel.apply {
