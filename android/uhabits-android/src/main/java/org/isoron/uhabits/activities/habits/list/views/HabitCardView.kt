@@ -108,6 +108,9 @@ class HabitCardView(
         set(values) {
             checkmarkPanel.values = values
             numberPanel.values = values.map { it / 1000.0 }.toDoubleArray()
+            streakText.apply {
+                visibility = if (values[0] == 0) View.GONE else View.VISIBLE
+            }
         }
 
     var threshold: Double
