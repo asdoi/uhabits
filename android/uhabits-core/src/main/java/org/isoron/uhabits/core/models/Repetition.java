@@ -63,7 +63,6 @@ public final class Repetition
             case YES_AUTO:
                 return YES_MANUAL;
             case YES_MANUAL:
-                return SKIP;
             default:
             case SKIP:
                 return NO;
