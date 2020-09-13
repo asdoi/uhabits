@@ -262,7 +262,7 @@ class HabitCardView(
                     } else 0
 
             streakText.apply {
-                text = lastStreak.toString()
+                text = "$lastStreak |"
                 setTextColor(when (isLastStreakBestStreak) {
                     true -> c
                     false -> sres.getColor(R.attr.mediumContrastTextColor)
