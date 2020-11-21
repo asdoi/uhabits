@@ -37,6 +37,7 @@ import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.screens.habits.list.*
 import org.isoron.uhabits.core.utils.*
 import org.isoron.uhabits.utils.*
+import kotlin.math.roundToInt
 
 @AutoFactory
 class HabitCardView(
@@ -77,7 +78,7 @@ class HabitCardView(
         set(value) {
             scoreRing.percentage = value.toFloat()
             scoreRing.precision = 1.0f / 16
-            scoreText.text = "${(value * 100).toInt()}%"
+            scoreText.text = "${(value * 100).roundToInt()}%"
         }
 
     var unit
