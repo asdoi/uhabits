@@ -44,7 +44,7 @@ public class HistoryChart extends ScrollableChart
 {
     private int[] checkmarks;
 
-    private int target;
+    private double target;
 
     private Paint pSquareBg, pSquareFg, pTextHeader;
 
@@ -102,6 +102,8 @@ public class HistoryChart extends ScrollableChart
     @NonNull
     private Controller controller;
 
+    private boolean skipsEnabled;
+
     public HistoryChart(Context context)
     {
         super(context);
@@ -148,12 +150,15 @@ public class HistoryChart extends ScrollableChart
         final Timestamp timestamp = positionToTimestamp(x, y);
         if (timestamp == null) return false;
 
-        Timestamp today = DateUtils.getToday();
+        Timestamp today = DateUtils.getTodayWithOffset();
         int newValue = YES_MANUAL;
         int offset = timestamp.daysUntil(today);
         if (offset < checkmarks.length)
         {
-            newValue = Repetition.nextToggleValue(checkmarks[offset]);
+            if(skipsEnabled)
+                newValue = Repetition.nextToggleValueWithSkip(checkmarks[offset]);
+            else
+                newValue = Repetition.nextToggleValueWithoutSkip(checkmarks[offset]);
             checkmarks[offset] = newValue;
         }
 
@@ -202,6 +207,7 @@ public class HistoryChart extends ScrollableChart
     public void setNumerical(boolean numerical)
     {
         isNumerical = numerical;
+        postInvalidate();
     }
 
     public void setIsBackgroundTransparent(boolean isBackgroundTransparent)
@@ -210,12 +216,17 @@ public class HistoryChart extends ScrollableChart
         initColors();
     }
 
+    public void setSkipEnabled(boolean value)
+    {
+        this.skipsEnabled = value;
+    }
+
     public void setIsEditable(boolean isEditable)
     {
         this.isEditable = isEditable;
     }
 
-    public void setTarget(int target)
+    public void setTarget(double target)
     {
         this.target = target;
         postInvalidate();
@@ -385,14 +396,14 @@ public class HistoryChart extends ScrollableChart
                 pSquareBg.setColor(colors[0]);
                 pSquareFg.setColor(textColors[1]);
             }
-            else if ((isNumerical && checkmark < target) || checkmark != YES_MANUAL)
+            else if ((isNumerical && (checkmark / 1000f >= target) || (!isNumerical && checkmark == YES_MANUAL)))
             {
-                pSquareBg.setColor(colors[1]);
+                pSquareBg.setColor(colors[2]);
                 pSquareFg.setColor(textColors[2]);
             }
             else
             {
-                pSquareBg.setColor(colors[2]);
+                pSquareBg.setColor(colors[1]);
                 pSquareFg.setColor(textColors[2]);
             }
         }
@@ -521,20 +532,20 @@ public class HistoryChart extends ScrollableChart
         Calendar date = (Calendar) baseDate.clone();
         date.add(Calendar.DAY_OF_YEAR, offset);
 
-        if (DateUtils.getStartOfDay(date.getTimeInMillis()) >
-            DateUtils.getStartOfToday()) return null;
+        if (DateUtils.getStartOfDayWithOffset(date.getTimeInMillis()) >
+            DateUtils.getStartOfTodayWithOffset()) return null;
 
         return new Timestamp(date.getTimeInMillis());
     }
 
     private void updateDate()
     {
-        baseDate = DateUtils.getStartOfTodayCalendar();
+        baseDate = DateUtils.getStartOfTodayCalendarWithOffset();
         baseDate.add(Calendar.DAY_OF_YEAR, -(getDataOffset() - 1) * 7);
 
         nDays = (nColumns - 1) * 7;
         int realWeekday =
-            DateUtils.getStartOfTodayCalendar().get(Calendar.DAY_OF_WEEK);
+            DateUtils.getStartOfTodayCalendarWithOffset().get(Calendar.DAY_OF_WEEK);
         todayPositionInColumn =
             (7 + realWeekday - firstWeekday) % 7;
 

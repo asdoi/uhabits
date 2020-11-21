@@ -56,7 +56,7 @@ public final class Repetition
         this.value = value;
     }
 
-    public static int nextToggleValue(int value)
+    public static int nextToggleValueWithSkip(int value)
     {
         switch(value) {
             case NO:
@@ -65,6 +65,17 @@ public final class Repetition
             case YES_MANUAL:
             default:
             case SKIP:
+                return NO;
+        }
+    }
+
+    public static int nextToggleValueWithoutSkip(int value)
+    {
+        switch(value) {
+            case NO:
+            case YES_AUTO:
+                return YES_MANUAL;
+            default:
                 return NO;
         }
     }

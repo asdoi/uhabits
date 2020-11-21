@@ -30,6 +30,9 @@ import org.isoron.uhabits.receivers.*
 const val ACTION_CHECK = 0
 const val ACTION_UNCHECK = 1
 const val ACTION_TOGGLE = 2
+const val ACTION_INCREMENT = 3
+const val ACTION_DECREMENT = 4
+
 const val EXTRA_BUNDLE = "com.twofortyfouram.locale.intent.extra.BUNDLE"
 const val EXTRA_STRING_BLURB = "com.twofortyfouram.locale.intent.extra.BLURB"
 
@@ -45,18 +48,20 @@ class FireSettingReceiver : BroadcastReceiver() {
                 .build()
         allHabits = app.component.habitList
         val args = SettingUtils.parseIntent(intent, allHabits) ?: return
-        val timestamp = DateUtils.getToday()
+        val timestamp = DateUtils.getTodayWithOffset()
         val controller = component.widgetController
 
         when (args.action) {
             ACTION_CHECK -> controller.onAddRepetition(args.habit, timestamp)
             ACTION_UNCHECK -> controller.onRemoveRepetition(args.habit, timestamp)
             ACTION_TOGGLE -> controller.onToggleRepetition(args.habit, timestamp)
+            ACTION_INCREMENT -> controller.onIncrement(args.habit, timestamp, 1000)
+            ACTION_DECREMENT -> controller.onDecrement(args.habit, timestamp, 1000)
         }
     }
 
     @ReceiverScope
-    @Component(dependencies = arrayOf(HabitsApplicationComponent::class))
+    @Component(dependencies = [HabitsApplicationComponent::class])
     internal interface ReceiverComponent {
         val widgetController: WidgetBehavior
     }

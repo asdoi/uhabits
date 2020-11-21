@@ -27,6 +27,8 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 
+import static org.isoron.uhabits.core.models.Checkmark.*;
+
 public abstract class ScoreList implements Iterable<Score>
 {
     protected final Habit habit;
@@ -69,7 +71,7 @@ public abstract class ScoreList implements Iterable<Score>
      */
     public double getTodayValue()
     {
-        return getValue(DateUtils.getToday());
+        return getValue(DateUtils.getTodayWithOffset());
     }
 
     /**
@@ -222,7 +224,7 @@ public abstract class ScoreList implements Iterable<Score>
         Repetition oldestRep = habit.getRepetitions().getOldest();
         if (oldestRep == null) return;
 
-        Timestamp today = DateUtils.getToday();
+        Timestamp today = DateUtils.getTodayWithOffset();
         compute(oldestRep.getTimestamp(), today);
     }
 
@@ -267,21 +269,48 @@ public abstract class ScoreList implements Iterable<Score>
     {
         if (from.isNewerThan(to)) return;
 
+        double rollingSum = 0.0;
+        int numerator = habit.getFrequency().getNumerator();
+        int denominator = habit.getFrequency().getDenominator();
         final double freq = habit.getFrequency().toDouble();
-        final int checkmarkValues[] = habit.getCheckmarks().getValues(from, to);
+        final int[] checkmarkValues = habit.getCheckmarks().getValues(from, to);
+
+        // For non-daily boolean habits, we double the numerator and the denominator to smooth
+        // out irregular repetition schedules (for example, weekly habits performed on different
+        // days of the week)
+        if (!habit.isNumerical() && freq < 1.0)
+        {
+            numerator *= 2;
+            denominator *= 2;
+        }
 
         List<Score> scores = new LinkedList<>();
 
         for (int i = 0; i < checkmarkValues.length; i++)
         {
-            double value = checkmarkValues[checkmarkValues.length - i - 1];
+            int offset = checkmarkValues.length - i - 1;
             if (habit.isNumerical())
             {
-                value /= 1000;
-                value /= habit.getTargetValue();
+                rollingSum += checkmarkValues[offset];
+                if (offset + denominator < checkmarkValues.length) {
+                    rollingSum -= checkmarkValues[offset + denominator];
+                }
+                double percentageCompleted = Math.min(1, rollingSum / 1000 / habit.getTargetValue());
+                previousValue = Score.compute(freq, previousValue, percentageCompleted);
             }
-            value = Math.min(1, value);
-            previousValue = Score.compute(freq, previousValue, value);
+            else
+            {
+                if (checkmarkValues[offset] == YES_MANUAL)
+                    rollingSum += 1.0;
+                if (offset + denominator < checkmarkValues.length)
+                    if (checkmarkValues[offset + denominator] == YES_MANUAL)
+                        rollingSum -= 1.0;
+                if (checkmarkValues[offset] != SKIP)
+                {
+                    double percentageCompleted = Math.min(1, rollingSum / numerator);
+                    previousValue = Score.compute(freq, previousValue, percentageCompleted);
+                }
+            }
             scores.add(new Score(from.plus(i), previousValue));
         }
 

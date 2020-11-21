@@ -82,6 +82,7 @@ public class HistoryEditorDialog extends AppCompatDialogFragment
         historyChart = new HistoryChart(context);
         historyChart.setController(controller);
         historyChart.setFirstWeekday(prefs.getFirstWeekday());
+        historyChart.setSkipEnabled(prefs.isSkipEnabled());
 
         if (savedInstanceState != null)
         {
@@ -181,6 +182,8 @@ public class HistoryEditorDialog extends AppCompatDialogFragment
             int color = PaletteUtils.getColor(getContext(), habit.getColor());
             historyChart.setColor(color);
             historyChart.setCheckmarks(checkmarks);
+            historyChart.setNumerical(habit.isNumerical());
+            historyChart.setTarget(habit.getTargetValue() / habit.getFrequency().getDenominator());
         }
     }
 }
